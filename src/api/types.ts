@@ -1,6 +1,6 @@
 // Common API response types
 export interface ApiResponse<T = unknown> {
-  success: boolean;
+  success?: boolean;
   data: T;
   message?: string;
 }
@@ -12,12 +12,17 @@ export interface ApiError {
 }
 
 // Pagination types
+export interface Pagination {
+  total_items: number;
+  current_page: number;
+  total_pages: number;
+  page_size: number;
+}
+
+// Paginated response wrapper
 export interface PaginatedResponse<T> {
   data: T[];
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
+  pagination: Pagination;
 }
 
 // Example user type (customize based on your API)
@@ -35,8 +40,13 @@ export interface Movie {
   year: number;
   image: string;
   rate: number;
+  rank?: number;
   short_description: string;
   genres: string[];
 }
 
-// Add more types as needed
+export interface MovieTopRatedResponse {
+  category: string;
+  data: Movie[];
+  pagination: Pagination;
+}

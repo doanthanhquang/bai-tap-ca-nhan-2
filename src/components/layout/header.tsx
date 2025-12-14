@@ -10,7 +10,7 @@ export function Header() {
   };
 
   return (
-    <header className="w-full bg-gradient-to-r from-rose-100 to-pink-100 dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700">
+    <header className="w-full bg-gradient-to-r from-rose-100 to-pink-100 dark:from-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700 rounded-lg">
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Left side - Title */}

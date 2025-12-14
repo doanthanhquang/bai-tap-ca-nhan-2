@@ -17,7 +17,7 @@ export function Navbar() {
   };
 
   return (
-    <nav className="w-full bg-blue-100 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700">
+    <nav className="w-full bg-blue-100 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700 mt-2 rounded-lg">
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 lg:px-8">
         <div className="flex w-full h-14 items-center justify-between gap-4">
           {/* Home Icon */}
