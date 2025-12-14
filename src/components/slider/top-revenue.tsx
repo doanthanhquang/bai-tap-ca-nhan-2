@@ -1,17 +1,20 @@
 import type { Movie } from "@/api/types";
+import { Card } from "@/components/ui/card";
 
 const TopRevenue = (item: Movie) => {
   return (
-    <div className="relative w-90">
-      <img src={item.image} alt={item.id}
-          className="w-full h-full object-cover"
-       />
+    <Card className="relative w-90 border-0 shadow-none bg-transparent rounded-none p-0">
+      <img 
+        src={item.image} 
+        alt={item.id}
+        className="w-full h-full object-cover"
+      />
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center w-80">
         <span className="text-2xl font-bold text-white">{item.title}</span>
         <span className="text-2xl text-white">{item.rate}</span>
         <span className="text-2xl text-white">{item.genres.join(", ")}</span>
       </div>
-    </div>
+    </Card>
   );
 };
 
