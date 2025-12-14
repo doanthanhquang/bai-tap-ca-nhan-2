@@ -20,18 +20,18 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
       </Button>
 
       {/* Hero Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
         {/* Movie Poster - Hình ảnh */}
-        <div className="lg:col-span-1">
+        <div className="col-span-1 max-sm:flex max-sm:justify-center">
           <img
             src={movie.image}
             alt={movie.title}
-            className="w-full rounded-lg shadow-xl"
+            className="max-sm:w-50 rounded-lg shadow-xl"
           />
         </div>
 
         {/* Movie Info */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="col-span-2 space-y-6">
           {/* Tiêu đề */}
           <div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
@@ -86,14 +86,9 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
           <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Đạo diễn
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="flex gap-4">
             {movie.directors.map((director) => (
               <div key={director.id} className="text-center">
-                <img
-                  src={director.image}
-                  alt={director.name}
-                  className="w-full aspect-square object-cover rounded-lg mb-2"
-                />
                 <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">
                   {director.name}
                 </p>

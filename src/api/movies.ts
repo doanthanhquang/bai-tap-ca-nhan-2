@@ -36,4 +36,16 @@ export const moviesApi = {
     });
     return response.data;
   },
+
+  // Search movies by name
+  searchMovies: async ({ title, page = 1, limit = 10 }: { title: string, page?: number, limit?: number }) => {
+    const response = await axiosInstance.get<PaginatedResponse<Movie>>('/movies/search', {
+      params: {
+        title,
+        page,
+        limit,
+      }
+    });
+    return response.data;
+  },
 };

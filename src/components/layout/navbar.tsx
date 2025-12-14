@@ -1,19 +1,26 @@
 import { Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
   const handleSearch = () => {
-    // Handle search functionality here
-    console.log("Searching for:", searchQuery);
+    if (searchQuery.trim()) {
+      navigate(`/search?title=${encodeURIComponent(searchQuery.trim())}`);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       handleSearch();
     }
+  };
+
+  const handleHomeClick = () => {
+    navigate("/");
   };
 
   return (
@@ -24,6 +31,7 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="icon"
+            onClick={handleHomeClick}
             className="flex-shrink-0 hover:bg-white/50 dark:hover:bg-gray-700 bg-white"
             aria-label="Home"
           >
