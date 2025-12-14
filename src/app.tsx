@@ -6,14 +6,16 @@ import {
   SearchResultsPage,
   PersonDetailPage,
   LoginPage,
+  SignUpPage,
 } from "@/pages";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Login Route (without MainLayout) */}
+        {/* Auth Routes (without MainLayout) */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
 
         {/* Main Routes (with MainLayout) */}
         <Route
