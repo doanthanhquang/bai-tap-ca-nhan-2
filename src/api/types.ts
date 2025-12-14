@@ -28,4 +28,15 @@ export interface User {
   createdAt: string;
 }
 
+// Movie types
+export interface Movie {
+  id: string;
+  title: string;
+  year: number;
+  image: string;
+  rate: number;
+  short_description: string;
+  genres: string[];
+}
+
 // Add more types as needed
