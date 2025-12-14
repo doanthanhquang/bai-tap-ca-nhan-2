@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
 import { loginSchema, type LoginFormData } from "@/lib/validation";
+import { userApi } from "@/api/user";
+import { AxiosError } from "axios";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -26,8 +30,58 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    // TODO: Handle login logic
-    console.log("Login attempt:", data);
+    setApiError(null);
+
+    const submitData = {
+      username: data.username,
+      password: data.password,
+    };
+
+    try {
+      const response = await userApi.login(submitData);
+      console.log(response)
+      if (response?.token) {
+        // Store token in localStorage
+        localStorage.setItem("token", response.token);
+
+        // Dispatch event to update header authentication state
+        window.dispatchEvent(new Event("authChange"));
+
+        // Handle remember me option
+        if (data.rememberMe) {
+          // Could store additional user preferences here
+          localStorage.setItem("rememberMe", "true");
+        }
+
+        // Redirect to home page or previous location
+        navigate("/");
+      } else {
+        setApiError(response.message || "Login failed. Please try again.");
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<{
+        message?: string;
+        errors?: Record<string, string[]>;
+      }>;
+
+      if (axiosError.response?.data) {
+        const errorData = axiosError.response.data;
+
+        // Handle validation errors from server
+        if (errorData.errors) {
+          const errorMessages = Object.values(errorData.errors).flat();
+          setApiError(errorMessages.join(", ") || "Validation error");
+        } else {
+          setApiError(
+            errorData.message || "Login failed. Please check your credentials."
+          );
+        }
+      } else {
+        setApiError(
+          "Network error. Please check your connection and try again."
+        );
+      }
+    }
   };
 
   return (
@@ -87,6 +141,13 @@ export default function LoginPage() {
               </p>
             )}
           </div>
+
+          {/* API Error Message */}
+          {apiError && (
+            <div className="p-3 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+              {apiError}
+            </div>
+          )}
 
           {/* Login Button */}
           <Button

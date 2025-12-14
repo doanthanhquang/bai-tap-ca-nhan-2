@@ -1,12 +1,47 @@
-import { Moon, Sun } from "lucide-react";
+import { useState, useEffect } from "react";
+import { LogOut, Moon, Sun, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/theme-context";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = () => {
+      const token = localStorage.getItem("token");
+      setIsAuthenticated(!!token);
+    };
+
+    // Check on mount
+    checkAuth();
+
+    // Listen for storage changes (e.g., when token is set/removed in other tabs)
+    window.addEventListener("storage", checkAuth);
+
+    // Custom event listener for same-tab token changes
+    const handleAuthChange = () => checkAuth();
+    window.addEventListener("authChange", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("storage", checkAuth);
+      window.removeEventListener("authChange", handleAuthChange);
+    };
+  }, []);
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsAuthenticated(false);
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new Event("authChange"));
+    navigate("/");
   };
 
   return (
@@ -32,7 +67,7 @@ const Header = () => {
               variant="ghost"
               size="icon"
               onClick={toggleTheme}
-              className="rounded-full hover:bg-white/50 dark:hover:bg-gray-700 bg-white"
+              className="rounded-md hover:bg-white/50 dark:hover:bg-gray-700 bg-white"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? (
@@ -41,6 +76,43 @@ const Header = () => {
                 <Moon className="h-5 w-5 text-gray-700" />
               )}
             </Button>
+
+            {/* Show Login button when NOT authenticated */}
+            {!isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate("/login")}
+                className="rounded-md hover:bg-white/50 dark:text-black bg-white min-w-20"
+                aria-label="Login"
+              >
+                Login
+              </Button>
+            )}
+
+            {isAuthenticated && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate("/profile")}
+                  className="rounded-md hover:bg-white/50 dark:hover:bg-gray-700 bg-white"
+                  aria-label="Profile"
+                >
+                  <User className="h-5 w-5 text-gray-700" />
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleLogout}
+                  className="rounded-md hover:bg-white/50 dark:hover:bg-gray-700 bg-white"
+                  aria-label="Logout"
+                >
+                  <LogOut className="h-5 w-5 text-gray-700" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
