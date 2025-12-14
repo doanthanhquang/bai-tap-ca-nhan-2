@@ -1,29 +1,35 @@
 import { useState, useEffect } from "react";
 import { moviesApi } from "@/api";
-import type { Movie, MovieTopRatedResponse } from "@/api/types";
-import Slider from "@/components/slider";
+import type {
+  Movie,
+  MovieTopRatedResponse,
+  PaginatedResponse,
+} from "@/api/types";
+import Slider from "@/components/slider/slider";
 
 export function MoviePage() {
-  const [moviesTopRate, setMoviesTopRate] = useState<Movie[]>([]);
+  const [moviesMostPopular, setMoviesMostPopular] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchMovies = async () => {
+  const fetchMoviesMostPopular = async () => {
     try {
       setLoading(true);
-      const response: MovieTopRatedResponse = await moviesApi.getMoviesTopRate({
-        category: "IMDB_TOP_50",
-      });
-      console.log(response);
-      setMoviesTopRate(response.data);
+      const response: PaginatedResponse<Movie> =
+        await moviesApi.getMoviesMostPopular({
+          page: 1,
+          limit: 10,
+        });
+
+      setMoviesMostPopular(response.data);
     } catch (err) {
-      console.error("Error fetching movies:", err);
+      console.error("Error fetching movies most popular:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMovies();
+    fetchMoviesMostPopular();
   }, []);
 
   if (loading) {
@@ -40,9 +46,28 @@ export function MoviePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="overflow-visible">
+      {/* Top revenue */}
       <div className="flex items-center justify-center">
-        <Slider items={moviesTopRate?.slice(0, 5) || []} />
+        <Slider
+          type="top-revenue"
+          items={moviesMostPopular?.slice(0, 5) || []}
+          classNameItem="flex justify-center"
+        />
+      </div>
+
+      {/* Popular */}
+      <div className="overflow-visible">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Most Popular
+        </h2>
+        <div className="flex items-center justify-center overflow-visible">
+          <Slider
+            type="popular"
+            items={moviesMostPopular || []}
+            classNameItem="basis-1/3 px-2"
+          />
+        </div>
       </div>
     </div>
   );

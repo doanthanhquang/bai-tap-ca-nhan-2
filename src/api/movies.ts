@@ -25,4 +25,15 @@ export const moviesApi = {
     });
     return response.data;
   },
+
+  // Get top rated movies by category
+  getMoviesMostPopular: async ({ page, limit }: { page: number, limit: number }) => {
+    const response = await axiosInstance.get<PaginatedResponse<Movie>>('/movies/most-popular', {
+      params: {
+        page,
+        limit,
+      }
+    });
+    return response.data;
+  },
 };

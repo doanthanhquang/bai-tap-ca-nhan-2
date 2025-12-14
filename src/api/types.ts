@@ -43,6 +43,7 @@ export interface Movie {
   rank?: number;
   short_description: string;
   genres: string[];
+  box_office_revenue?: string;
 }
 
 export interface MovieTopRatedResponse {

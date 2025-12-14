@@ -10,7 +10,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       <Header />
       <Navbar />
 
-      <main className="w-full my-2">{children}</main>
+      <main className="w-full m-2 overflow-visible">{children}</main>
 
       <Footer />
     </div>
