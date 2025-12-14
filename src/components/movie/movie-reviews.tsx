@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
+import CommonPagination from "@/components/common/pagination";
 import { Star, AlertTriangle } from "lucide-react";
 import type { Review } from "@/api/types";
 
@@ -8,9 +9,31 @@ interface MovieReviewsProps {
 }
 
 const MovieReviews = ({ reviews }: MovieReviewsProps) => {
+  const [currentPage, setCurrentPage] = useState(1);
   const [expandedReviews, setExpandedReviews] = useState<Set<number>>(
     new Set()
   );
+  const itemsPerPage = 5;
+
+  // Calculate pagination
+  const { paginatedReviews, totalPages } = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return {
+      paginatedReviews: reviews.slice(startIndex, endIndex),
+      totalPages: Math.ceil(reviews.length / itemsPerPage),
+    };
+  }, [reviews, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    setExpandedReviews(new Set()); // Reset expanded reviews when changing page
+    // Scroll to reviews section
+    const reviewsSection = document.getElementById("reviews-section");
+    if (reviewsSection) {
+      reviewsSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   const toggleExpand = (reviewId: number) => {
     setExpandedReviews((prev) => {
@@ -35,7 +58,7 @@ const MovieReviews = ({ reviews }: MovieReviewsProps) => {
       </h2>
 
       <div className="space-y-4">
-        {reviews.map((review) => {
+        {paginatedReviews.map((review) => {
           const isExpanded = expandedReviews.has(review.id);
           const shouldShowReadMore = review.content.length > 300;
           const displayContent =
@@ -99,6 +122,13 @@ const MovieReviews = ({ reviews }: MovieReviewsProps) => {
           );
         })}
       </div>
+
+      {/* Pagination */}
+      <CommonPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </Card>
   );
 };

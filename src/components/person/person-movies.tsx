@@ -1,5 +1,7 @@
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
+import CommonPagination from "@/components/common/pagination";
 import type { PersonMovie } from "@/api/types";
 
 interface PersonMoviesProps {
@@ -8,6 +10,24 @@ interface PersonMoviesProps {
 
 const PersonMovies = ({ movies }: PersonMoviesProps) => {
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Calculate pagination
+  const { paginatedMovies, totalPages } = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return {
+      paginatedMovies: movies.slice(startIndex, endIndex),
+      totalPages: Math.ceil(movies.length / itemsPerPage),
+    };
+  }, [movies, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    // Scroll to top of movies section
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   if (!movies || movies.length === 0) {
     return null;
@@ -20,7 +40,7 @@ const PersonMovies = ({ movies }: PersonMoviesProps) => {
         {movies.length === 1 ? "movie" : "movies"})
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {movies.map((movie) => (
+        {paginatedMovies.map((movie) => (
           <Card
             key={movie.id}
             className="cursor-pointer hover:shadow-lg transition-shadow overflow-hidden"
@@ -54,6 +74,13 @@ const PersonMovies = ({ movies }: PersonMoviesProps) => {
           </Card>
         ))}
       </div>
+
+      {/* Pagination */}
+      <CommonPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 };

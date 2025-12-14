@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { moviesApi } from "@/api";
-import type { Movie } from "@/api/types";
+import type { Movie, Pagination as PaginationType } from "@/api/types";
 import MovieCard from "@/components/movie/movie-card";
+import CommonPagination from "@/components/common/pagination";
 import { Search } from "lucide-react";
 
 export default function SearchResultsPage() {
@@ -12,8 +13,12 @@ export default function SearchResultsPage() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [pagination, setPagination] = useState<PaginationType>({
+    total_items: 0,
+    current_page: 1,
+    total_pages: 1,
+    page_size: 20,
+  });
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -29,10 +34,7 @@ export default function SearchResultsPage() {
           limit: 20,
         });
         setMovies(response.data);
-        setHasMore(
-          response.pagination.current_page < response.pagination.total_pages
-        );
-        setPage(1);
+        setPagination(response.pagination);
       } catch (err) {
         console.error("Error searching movies:", err);
         setError("Failed to search movies");
@@ -44,24 +46,24 @@ export default function SearchResultsPage() {
     fetchSearchResults();
   }, [query, searchType]);
 
-  const loadMore = async () => {
-    if (!hasMore || loading) return;
+  const handlePageChange = async (newPage: number) => {
+    if (newPage === pagination.current_page || loading) return;
 
     try {
       setLoading(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      
       const response = await moviesApi.searchMovies({
         searchType,
         query,
-        page: page + 1,
+        page: newPage,
         limit: 20,
       });
-      setMovies((prev) => [...prev, ...response.data]);
-      setHasMore(
-        response.pagination.current_page < response.pagination.total_pages
-      );
-      setPage((prev) => prev + 1);
+      setMovies(response.data);
+      setPagination(response.pagination);
     } catch (err) {
-      console.error("Error loading more:", err);
+      console.error("Error changing page:", err);
+      setError("Failed to load page");
     } finally {
       setLoading(false);
     }
@@ -129,18 +131,13 @@ export default function SearchResultsPage() {
             ))}
           </div>
 
-          {/* Load More Button */}
-          {hasMore && (
-            <div className="flex justify-center pt-4">
-              <button
-                onClick={loadMore}
-                disabled={loading}
-                className="px-6 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {loading ? "Loading..." : "Load More"}
-              </button>
-            </div>
-          )}
+          {/* Pagination */}
+          <CommonPagination
+            currentPage={pagination.current_page}
+            totalPages={pagination.total_pages}
+            onPageChange={handlePageChange}
+            loading={loading}
+          />
         </>
       ) : (
         <div className="flex flex-col items-center justify-center min-h-[300px]">
