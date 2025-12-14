@@ -3,13 +3,16 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+type SearchType = 'title' | 'person';
+
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState<SearchType>("title");
   const navigate = useNavigate();
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      navigate(`/search?title=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/search?type=${searchType}&q=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
 
@@ -40,14 +43,27 @@ const Navbar = () => {
 
           {/* Search Bar */}
           <div className="flex items-center justify-center gap-2 ml-auto">
+            {/* Search Type Select */}
+            <select
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value as SearchType)}
+              className="h-9 px-3 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 cursor-pointer"
+            >
+              <option value="title">Title</option>
+              <option value="person">Person</option>
+            </select>
+            
+            {/* Search Input */}
             <input
               type="text"
-              placeholder="Search"
+              placeholder={searchType === 'title' ? 'Search by movie title...' : 'Search by person name...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="h-9 px-4 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+              className="h-9 px-4 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 min-w-[200px]"
             />
+            
+            {/* Search Button */}
             <Button
               onClick={handleSearch}
               variant="outline"

@@ -7,7 +7,8 @@ import { Search } from "lucide-react";
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
-  const query = searchParams.get("title") || "";
+  const query = searchParams.get("q") || "";
+  const searchType = (searchParams.get("type") as 'title' | 'person') || "title";
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +23,8 @@ export default function SearchResultsPage() {
         setLoading(true);
         setError(null);
         const response = await moviesApi.searchMovies({
-          title: query,
+          searchType,
+          query,
           page: 1,
           limit: 20,
         });
@@ -40,7 +42,7 @@ export default function SearchResultsPage() {
     };
 
     fetchSearchResults();
-  }, [query]);
+  }, [query, searchType]);
 
   const loadMore = async () => {
     if (!hasMore || loading) return;
@@ -48,7 +50,8 @@ export default function SearchResultsPage() {
     try {
       setLoading(true);
       const response = await moviesApi.searchMovies({
-        title: query,
+        searchType,
+        query,
         page: page + 1,
         limit: 20,
       });
@@ -62,6 +65,10 @@ export default function SearchResultsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getSearchTypeLabel = () => {
+    return searchType === 'title' ? 'title' : 'person';
   };
 
   if (!query) {
@@ -99,13 +106,18 @@ export default function SearchResultsPage() {
   return (
     <div className="space-y-6">
       {/* Search Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-          Search Results for "{query}"
-        </h1>
-        <span className="text-gray-600 dark:text-gray-400">
-          {movies.length} results
-        </span>
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Search Results for "{query}"
+          </h1>
+          <span className="text-gray-600 dark:text-gray-400">
+            {movies.length} results
+          </span>
+        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Searching by {getSearchTypeLabel()}
+        </p>
       </div>
 
       {/* Results Grid */}
