@@ -1,23 +1,33 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { loginSchema, type LoginFormData } from "@/lib/validation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-    rememberMe: false,
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      rememberMe: false,
+    },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: LoginFormData) => {
     // TODO: Handle login logic
-    console.log("Login attempt:", formData);
+    console.log("Login attempt:", data);
   };
 
   return (
@@ -31,7 +41,7 @@ export default function LoginPage() {
         </div>
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Username Field */}
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
@@ -39,13 +49,14 @@ export default function LoginPage() {
               id="username"
               type="text"
               placeholder="Enter your username"
-              value={formData.username}
-              onChange={(e) =>
-                setFormData({ ...formData, username: e.target.value })
-              }
-              required
+              {...register("username")}
               className="h-11"
             />
+            {errors.username && (
+              <p className="text-sm text-red-500 dark:text-red-400">
+                {errors.username.message}
+              </p>
+            )}
           </div>
 
           {/* Password Field */}
@@ -56,11 +67,7 @@ export default function LoginPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                required
+                {...register("password")}
                 className="h-11 pr-10"
               />
               <div
@@ -74,11 +81,20 @@ export default function LoginPage() {
                 )}
               </div>
             </div>
+            {errors.password && (
+              <p className="text-sm text-red-500 dark:text-red-400">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           {/* Login Button */}
-          <Button type="submit" className="w-full h-11 text-base font-semibold">
-            Sign In
+          <Button
+            type="submit"
+            className="w-full h-11 text-base font-semibold"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Signing in..." : "Sign In"}
           </Button>
         </form>
 

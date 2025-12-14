@@ -1,34 +1,44 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import DatePicker from "@/components/common/date-picker";
 import { Eye, EyeOff } from "lucide-react";
+import { signupSchema, type SignupFormData } from "@/lib/validation";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    password: "",
-    phone: "",
-    dob: undefined as Date | undefined,
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      password: "",
+      phone: "",
+      dob: undefined,
+    },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const onSubmit = async (data: SignupFormData) => {
     // Format data for API
     const submitData = {
-      username: formData.username,
-      email: formData.email,
-      password: formData.password,
-      phone: formData.phone,
-      dob: formData.dob ? formData.dob.toISOString().split("T")[0] : "",
+      username: data.username,
+      email: data.email,
+      password: data.password,
+      phone: data.phone,
+      dob: data.dob ? data.dob.toISOString().split("T")[0] : "",
     };
-    
+
     // TODO: Handle sign up logic
     console.log("Sign up attempt:", submitData);
   };
@@ -44,7 +54,7 @@ export default function SignUpPage() {
         </div>
 
         {/* Sign Up Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Username Field */}
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
@@ -52,13 +62,14 @@ export default function SignUpPage() {
               id="username"
               type="text"
               placeholder="Enter your username"
-              value={formData.username}
-              onChange={(e) =>
-                setFormData({ ...formData, username: e.target.value })
-              }
-              required
+              {...register("username")}
               className="h-11"
             />
+            {errors.username && (
+              <p className="text-sm text-red-500 dark:text-red-400">
+                {errors.username.message}
+              </p>
+            )}
           </div>
 
           {/* Email Field */}
@@ -68,13 +79,14 @@ export default function SignUpPage() {
               id="email"
               type="email"
               placeholder="user@example.com"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              required
+              {...register("email")}
               className="h-11"
             />
+            {errors.email && (
+              <p className="text-sm text-red-500 dark:text-red-400">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           {/* Password Field */}
@@ -85,11 +97,7 @@ export default function SignUpPage() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData({ ...formData, password: e.target.value })
-                }
-                required
+                {...register("password")}
                 className="h-11 pr-10"
               />
               <div
@@ -103,6 +111,11 @@ export default function SignUpPage() {
                 )}
               </div>
             </div>
+            {errors.password && (
+              <p className="text-sm text-red-500 dark:text-red-400">
+                {errors.password.message}
+              </p>
+            )}
           </div>
 
           {/* Phone Field */}
@@ -112,28 +125,44 @@ export default function SignUpPage() {
               id="phone"
               type="tel"
               placeholder="Enter your phone number"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
-              required
+              {...register("phone")}
               className="h-11"
             />
+            {errors.phone && (
+              <p className="text-sm text-red-500 dark:text-red-400">
+                {errors.phone.message}
+              </p>
+            )}
           </div>
 
           {/* Date of Birth Field */}
           <div className="space-y-2">
             <Label htmlFor="dob">Date of Birth</Label>
-            <DatePicker
-              date={formData.dob}
-              onDateChange={(date) => setFormData({ ...formData, dob: date })}
-              placeholder="Select your date of birth"
+            <Controller
+              name="dob"
+              control={control}
+              render={({ field }) => (
+                <DatePicker
+                  date={field.value}
+                  onDateChange={(date) => field.onChange(date)}
+                  placeholder="Select your date of birth"
+                />
+              )}
             />
+            {errors.dob && (
+              <p className="text-sm text-red-500 dark:text-red-400">
+                {errors.dob.message}
+              </p>
+            )}
           </div>
 
           {/* Sign Up Button */}
-          <Button type="submit" className="w-full h-11 text-base font-semibold">
-            Sign Up
+          <Button
+            type="submit"
+            className="w-full h-11 text-base font-semibold"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Signing up..." : "Sign Up"}
           </Button>
         </form>
 
