@@ -14,7 +14,7 @@ const Popular = (item: Movie) => {
         {/* Information Section - Shows on hover below the image */}
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/90 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
           <h3 className="text-white font-bold text-sm mb-1">
-            {item.title} ({item.year})
+            {item.title} {item.year ? `(${item.year})` : ''}
           </h3>
         </div>
       </div>

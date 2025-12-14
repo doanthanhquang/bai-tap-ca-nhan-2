@@ -8,8 +8,24 @@ import type {
 import Slider from "@/components/slider/slider";
 
 export function MoviePage() {
+  const [moviesTopRate, setMoviesTopRate] = useState<Movie[]>([]);
   const [moviesMostPopular, setMoviesMostPopular] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchMoviesTopRate = async () => {
+    try {
+      setLoading(true);
+      const response: MovieTopRatedResponse = await moviesApi.getMoviesTopRate({
+        category: "IMDB_TOP_50",
+      });
+
+      setMoviesTopRate(response.data);
+    } catch (err) {
+      console.error("Error fetching movies:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchMoviesMostPopular = async () => {
     try {
@@ -29,6 +45,7 @@ export function MoviePage() {
   };
 
   useEffect(() => {
+    fetchMoviesTopRate();
     fetchMoviesMostPopular();
   }, []);
 
@@ -65,6 +82,20 @@ export function MoviePage() {
           <Slider
             type="popular"
             items={moviesMostPopular || []}
+            classNameItem="basis-1/3 px-2"
+          />
+        </div>
+      </div>
+
+      {/* Top rated */}
+      <div className="overflow-visible">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          Top Rated
+        </h2>
+        <div className="flex items-center justify-center">
+          <Slider
+            type="popular"
+            items={moviesTopRate || []}
             classNameItem="basis-1/3 px-2"
           />
         </div>
