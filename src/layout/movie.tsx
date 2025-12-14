@@ -42,6 +42,7 @@ export function MoviePage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-center">
+        <Slider items={moviesTopRate?.slice(0, 5) || []} />
       </div>
     </div>
   );
