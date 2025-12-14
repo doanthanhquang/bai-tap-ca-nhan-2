@@ -20,7 +20,7 @@ const SkeletonSlider = () => (
   </div>
 );
 
-export function MoviePage() {
+export default function MoviesListPage() {
   const [moviesTopRate, setMoviesTopRate] = useState<Movie[]>([]);
   const [moviesMostPopular, setMoviesMostPopular] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);

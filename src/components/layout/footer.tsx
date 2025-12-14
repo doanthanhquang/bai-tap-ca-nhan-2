@@ -3,7 +3,7 @@ interface FooterProps {
   className?: string;
 }
 
-export function Footer({ className = "" }: FooterProps) {
+const Footer = ({ className = "" }: FooterProps) => {
   return (
     <footer
       className={cn(
@@ -14,4 +14,6 @@ export function Footer({ className = "" }: FooterProps) {
       18120525 - Đoàn Thanh Quang
     </footer>
   );
-}
+};
+
+export default Footer;

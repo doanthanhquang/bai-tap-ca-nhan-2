@@ -1,9 +1,19 @@
+import { useNavigate } from "react-router-dom";
 import type { Movie } from "@/api/types";
 import { Card } from "@/components/ui/card";
 
 const Popular = (item: Movie) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/movies/${item.id}`);
+  };
+
   return (
-    <Card className="group relative w-full cursor-pointer transition-all duration-300 ease-in-out hover:z-50 hover:scale-120 py-8 border-0 shadow-none bg-transparent">
+    <Card
+      className="group relative w-full cursor-pointer transition-all duration-300 ease-in-out hover:z-50 hover:scale-120 py-8 border-0 shadow-none bg-transparent"
+      onClick={handleClick}
+    >
       {/* Image Container with aspect ratio */}
       <div className="relative w-full aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
         <img

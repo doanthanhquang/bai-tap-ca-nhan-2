@@ -2,7 +2,7 @@ import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/theme-context";
 
-export function Header() {
+const Header = () => {
   const { theme, setTheme } = useTheme();
 
   const toggleTheme = () => {
@@ -46,4 +46,6 @@ export function Header() {
       </div>
     </header>
   );
-}
+};
+
+export default Header;

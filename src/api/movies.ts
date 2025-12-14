@@ -1,5 +1,5 @@
 import axiosInstance from '@/api/axios';
-import type { Movie, PaginatedResponse, MovieTopRatedResponse } from '@/api/types';
+import type { Movie, PaginatedResponse, MovieTopRatedResponse, MovieDetail } from '@/api/types';
 
 export const moviesApi = {
   // Get paginated list of movies
@@ -10,9 +10,9 @@ export const moviesApi = {
     return response.data;
   },
 
-  // Get single movie by ID
+  // Get single movie by ID with full details
   getMovieById: async (id: string) => {
-    const response = await axiosInstance.get<Movie>(`/movies/${id}`);
+    const response = await axiosInstance.get<MovieDetail>(`/movies/${id}`);
     return response.data;
   },
 

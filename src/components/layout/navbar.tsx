@@ -2,7 +2,7 @@ import { Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
-export function Navbar() {
+const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = () => {
@@ -52,4 +52,6 @@ export function Navbar() {
       </div>
     </nav>
   );
-}
+};
+
+export default Navbar;

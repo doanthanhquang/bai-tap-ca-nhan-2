@@ -4,7 +4,7 @@ interface MainLayoutProps {
   children: React.ReactNode;
 }
 
-export function MainLayout({ children }: MainLayoutProps) {
+const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <div className="min-h-screen relative flex flex-col bg-white dark:bg-gray-950 w-full max-w-[1200px] mx-auto">
       <Header />
@@ -15,4 +15,6 @@ export function MainLayout({ children }: MainLayoutProps) {
       <Footer />
     </div>
   );
-}
+};
+
+export default MainLayout;
