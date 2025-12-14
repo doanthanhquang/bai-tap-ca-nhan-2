@@ -1,6 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { MainLayout } from "@/components/layout";
-import { MoviesListPage, MovieDetailPage, SearchResultsPage } from "@/pages";
+import {
+  MoviesListPage,
+  MovieDetailPage,
+  SearchResultsPage,
+  PersonDetailPage,
+} from "@/pages";
 
 function App() {
   return (
@@ -11,6 +16,7 @@ function App() {
           <Route path="/movies" element={<MoviesListPage />} />
           <Route path="/movies/:id" element={<MovieDetailPage />} />
           <Route path="/search" element={<SearchResultsPage />} />
+          <Route path="/persons/:id" element={<PersonDetailPage />} />
         </Routes>
       </MainLayout>
     </Router>

@@ -88,7 +88,11 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
           </h2>
           <div className="flex gap-4">
             {movie.directors.map((director) => (
-              <div key={director.id} className="text-center">
+              <div 
+                key={director.id} 
+                className="text-center cursor-pointer"
+                onClick={() => navigate(`/persons/${director.id}`)}
+              >
                 <p className="font-semibold text-sm text-gray-900 dark:text-gray-100">
                   {director.name}
                 </p>
@@ -106,7 +110,11 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {movie.actors.map((actor) => (
-              <div key={actor.id} className="text-center">
+              <div 
+                key={actor.id} 
+                className="text-center cursor-pointer"
+                onClick={() => navigate(`/persons/${actor.id}`)}
+              >
                 <img
                   src={actor.image}
                   alt={actor.name}

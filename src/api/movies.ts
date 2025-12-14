@@ -38,29 +38,29 @@ export const moviesApi = {
   },
 
   // Search movies by title or person
-  searchMovies: async ({ 
-    searchType, 
-    query, 
-    page = 1, 
-    limit = 10 
-  }: { 
-    searchType: 'title' | 'person', 
-    query: string, 
-    page?: number, 
-    limit?: number 
+  searchMovies: async ({
+    searchType,
+    query,
+    page = 1,
+    limit = 10
+  }: {
+    searchType: 'title' | 'person',
+    query: string,
+    page?: number,
+    limit?: number
   }) => {
     const params: Record<string, string | number> = {
       page,
       limit,
     };
-    
+
     // Add the appropriate search parameter based on type
     if (searchType === 'title') {
       params.title = query;
     } else {
       params.person = query;
     }
-    
+
     const response = await axiosInstance.get<PaginatedResponse<Movie>>('/movies/search', {
       params
     });

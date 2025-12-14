@@ -64,6 +64,30 @@ export interface Actor extends Person {
   character: string;
 }
 
+// Person Movie (in Known For)
+export interface PersonMovie {
+  id: string;
+  title: string;
+  year: number;
+  image: string;
+  role: 'actor' | 'director' | 'writer';
+  character: string | null;
+}
+
+// Person Detail types
+export interface PersonDetail {
+  id: string;
+  name: string;
+  role: string;
+  image: string;
+  summary: string;
+  birth_date?: string;
+  death_date?: string;
+  height?: string;
+  awards?: string;
+  known_for: PersonMovie[];
+}
+
 // Review types
 export interface Review {
   id: number;
