@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { MovieDetail } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import MovieReviews from "@/components/movie/movie-reviews";
 import { ArrowLeft } from "lucide-react";
 
 interface MovieDetailViewProps {
@@ -131,6 +132,9 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
           </div>
         </Card>
       )}
+
+      {/* Reviews */}
+      <MovieReviews reviews={movie.reviews} />
     </div>
   );
 };
