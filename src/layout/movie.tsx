@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, startTransition } from "react";
 import { moviesApi } from "@/api";
 import type {
   Movie,
@@ -6,6 +6,19 @@ import type {
   PaginatedResponse,
 } from "@/api/types";
 import Slider from "@/components/slider/slider";
+
+// Skeleton loader component
+const SkeletonSlider = () => (
+  <div className="w-full animate-pulse">
+    <div className="flex gap-4">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="flex-1">
+          <div className="aspect-video bg-gray-300 dark:bg-gray-700 rounded-lg" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 export function MoviePage() {
   const [moviesTopRate, setMoviesTopRate] = useState<Movie[]>([]);
@@ -37,17 +50,20 @@ export function MoviePage() {
             category: "IMDB_TOP_50",
           });
 
-        if (append) {
-          setMoviesTopRate((prev) => [...prev, ...response.data]);
-        } else {
-          setMoviesTopRate(response.data);
-        }
+        // Use startTransition for non-urgent updates
+        startTransition(() => {
+          if (append) {
+            setMoviesTopRate((prev) => [...prev, ...response.data]);
+          } else {
+            setMoviesTopRate(response.data);
+          }
 
-        // Check if there's more data
-        setTopRatedHasMore(
-          response.pagination.current_page < response.pagination.total_pages
-        );
-        setTopRatedPage(page);
+          // Check if there's more data
+          setTopRatedHasMore(
+            response.pagination.current_page < response.pagination.total_pages
+          );
+          setTopRatedPage(page);
+        });
       } catch (err) {
         console.error("Error fetching movies:", err);
       } finally {
@@ -75,17 +91,20 @@ export function MoviePage() {
             limit: 10,
           });
 
-        if (append) {
-          setMoviesMostPopular((prev) => [...prev, ...response.data]);
-        } else {
-          setMoviesMostPopular(response.data);
-        }
+        // Use startTransition for non-urgent updates
+        startTransition(() => {
+          if (append) {
+            setMoviesMostPopular((prev) => [...prev, ...response.data]);
+          } else {
+            setMoviesMostPopular(response.data);
+          }
 
-        // Check if there's more data
-        setPopularHasMore(
-          response.pagination.current_page < response.pagination.total_pages
-        );
-        setPopularPage(page);
+          // Check if there's more data
+          setPopularHasMore(
+            response.pagination.current_page < response.pagination.total_pages
+          );
+          setPopularPage(page);
+        });
       } catch (err) {
         console.error("Error fetching movies most popular:", err);
       } finally {
@@ -117,61 +136,60 @@ export function MoviePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-300">
-            Loading movies...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="overflow-visible">
+    <div className="overflow-visible space-y-8">
       {/* Top revenue */}
       <div className="flex items-center justify-center">
-        <Slider
-          type="top-revenue"
-          items={moviesMostPopular?.slice(0, 5) || []}
-          classNameItem="flex justify-center"
-        />
+        {loading ? (
+          <SkeletonSlider />
+        ) : (
+          <Slider
+            type="top-revenue"
+            items={moviesMostPopular?.slice(0, 5) || []}
+            classNameItem="flex justify-center"
+          />
+        )}
       </div>
 
       {/* Popular */}
-      <div className="overflow-visible">
+      <div className="overflow-visible space-y-4">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Most Popular
         </h2>
         <div className="flex items-center justify-center overflow-visible">
-          <Slider
-            type="popular"
-            items={moviesMostPopular || []}
-            classNameItem="basis-1/3 px-2"
-            onLoadMore={loadMorePopular}
-            hasMore={popularHasMore}
-            isLoading={popularLoading}
-          />
+          {loading ? (
+            <SkeletonSlider />
+          ) : (
+            <Slider
+              type="popular"
+              items={moviesMostPopular || []}
+              classNameItem="basis-1/3 px-2"
+              onLoadMore={loadMorePopular}
+              hasMore={popularHasMore}
+              isLoading={popularLoading}
+            />
+          )}
         </div>
       </div>
 
       {/* Top rated */}
-      <div className="overflow-visible">
+      <div className="overflow-visible space-y-4">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Top Rated
         </h2>
         <div className="flex items-center justify-center">
-          <Slider
-            type="popular"
-            items={moviesTopRate || []}
-            classNameItem="basis-1/3 px-2"
-            onLoadMore={loadMoreTopRated}
-            hasMore={topRatedHasMore}
-            isLoading={topRatedLoading}
-          />
+          {loading ? (
+            <SkeletonSlider />
+          ) : (
+            <Slider
+              type="popular"
+              items={moviesTopRate || []}
+              classNameItem="basis-1/3 px-2"
+              onLoadMore={loadMoreTopRated}
+              hasMore={topRatedHasMore}
+              isLoading={topRatedLoading}
+            />
+          )}
         </div>
       </div>
     </div>
