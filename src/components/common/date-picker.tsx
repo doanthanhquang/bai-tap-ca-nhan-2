@@ -52,6 +52,7 @@ export default function DatePicker({
         <Calendar
           mode="single"
           selected={date}
+          className="min-w-60"
           captionLayout="dropdown"
           onSelect={handleSelect}
         />

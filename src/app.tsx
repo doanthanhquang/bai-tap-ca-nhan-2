@@ -7,6 +7,7 @@ import {
   PersonDetailPage,
   LoginPage,
   SignUpPage,
+  ProfilePage,
 } from "@/pages";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/movies/:id" element={<MovieDetailPage />} />
                 <Route path="/search" element={<SearchResultsPage />} />
                 <Route path="/persons/:id" element={<PersonDetailPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
               </Routes>
             </MainLayout>
           }
