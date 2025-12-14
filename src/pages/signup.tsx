@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,13 @@ import { Label } from "@/components/ui/label";
 import DatePicker from "@/components/common/date-picker";
 import { Eye, EyeOff } from "lucide-react";
 import { signupSchema, type SignupFormData } from "@/lib/validation";
+import { userApi } from "@/api/user";
+import { AxiosError } from "axios";
 
 export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const {
     register,
@@ -30,7 +34,8 @@ export default function SignUpPage() {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    // Format data for API
+    setApiError(null);
+
     const submitData = {
       username: data.username,
       email: data.email,
@@ -39,8 +44,34 @@ export default function SignUpPage() {
       dob: data.dob ? data.dob.toISOString().split("T")[0] : "",
     };
 
-    // TODO: Handle sign up logic
-    console.log("Sign up attempt:", submitData);
+    try {
+      await userApi.register(submitData);
+
+      navigate("/login");
+    } catch (error) {
+      const axiosError = error as AxiosError<{
+        message?: string;
+        errors?: Record<string, string[]>;
+      }>;
+
+      if (axiosError.response?.data) {
+        const errorData = axiosError.response.data;
+
+        // Handle validation errors from server
+        if (errorData.errors) {
+          const errorMessages = Object.values(errorData.errors).flat();
+          setApiError(errorMessages.join(", ") || "Validation error");
+        } else {
+          setApiError(
+            errorData.message || "Registration failed. Please try again."
+          );
+        }
+      } else {
+        setApiError(
+          "Network error. Please check your connection and try again."
+        );
+      }
+    }
   };
 
   return (
@@ -155,6 +186,13 @@ export default function SignUpPage() {
               </p>
             )}
           </div>
+
+          {/* API Error Message */}
+          {apiError && (
+            <div className="p-3 text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+              {apiError}
+            </div>
+          )}
 
           {/* Sign Up Button */}
           <Button
