@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { moviesApi } from "@/api";
 import type {
   Movie,
@@ -10,43 +10,111 @@ import Slider from "@/components/slider/slider";
 export function MoviePage() {
   const [moviesTopRate, setMoviesTopRate] = useState<Movie[]>([]);
   const [moviesMostPopular, setMoviesMostPopular] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const fetchMoviesTopRate = async () => {
-    try {
-      setLoading(true);
-      const response: MovieTopRatedResponse = await moviesApi.getMoviesTopRate({
-        category: "IMDB_TOP_50",
-      });
+  // Pagination states
+  const [popularPage, setPopularPage] = useState(1);
+  const [popularHasMore, setPopularHasMore] = useState(true);
+  const [popularLoading, setPopularLoading] = useState(false);
 
-      setMoviesTopRate(response.data);
-    } catch (err) {
-      console.error("Error fetching movies:", err);
-    } finally {
-      setLoading(false);
+  const [topRatedPage, setTopRatedPage] = useState(1);
+  const [topRatedHasMore, setTopRatedHasMore] = useState(true);
+  const [topRatedLoading, setTopRatedLoading] = useState(false);
+
+  const fetchMoviesTopRate = useCallback(
+    async (page: number = 1, append: boolean = false) => {
+      if (topRatedLoading || (!append && loading)) return;
+
+      try {
+        if (append) {
+          setTopRatedLoading(true);
+        } else {
+          setLoading(true);
+        }
+
+        const response: MovieTopRatedResponse =
+          await moviesApi.getMoviesTopRate({
+            category: "IMDB_TOP_50",
+          });
+
+        if (append) {
+          setMoviesTopRate((prev) => [...prev, ...response.data]);
+        } else {
+          setMoviesTopRate(response.data);
+        }
+
+        // Check if there's more data
+        setTopRatedHasMore(
+          response.pagination.current_page < response.pagination.total_pages
+        );
+        setTopRatedPage(page);
+      } catch (err) {
+        console.error("Error fetching movies:", err);
+      } finally {
+        setLoading(false);
+        setTopRatedLoading(false);
+      }
+    },
+    [topRatedLoading, loading]
+  );
+
+  const fetchMoviesMostPopular = useCallback(
+    async (page: number = 1, append: boolean = false) => {
+      if (popularLoading || (!append && loading)) return;
+
+      try {
+        if (append) {
+          setPopularLoading(true);
+        } else {
+          setLoading(true);
+        }
+
+        const response: PaginatedResponse<Movie> =
+          await moviesApi.getMoviesMostPopular({
+            page,
+            limit: 10,
+          });
+
+        if (append) {
+          setMoviesMostPopular((prev) => [...prev, ...response.data]);
+        } else {
+          setMoviesMostPopular(response.data);
+        }
+
+        // Check if there's more data
+        setPopularHasMore(
+          response.pagination.current_page < response.pagination.total_pages
+        );
+        setPopularPage(page);
+      } catch (err) {
+        console.error("Error fetching movies most popular:", err);
+      } finally {
+        setLoading(false);
+        setPopularLoading(false);
+      }
+    },
+    [popularLoading, loading]
+  );
+
+  // Callbacks for infinite scroll
+  const loadMorePopular = useCallback(() => {
+    if (popularHasMore && !popularLoading) {
+      fetchMoviesMostPopular(popularPage + 1, true);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [popularPage, popularHasMore, popularLoading]);
 
-  const fetchMoviesMostPopular = async () => {
-    try {
-      setLoading(true);
-      const response: PaginatedResponse<Movie> =
-        await moviesApi.getMoviesMostPopular({
-          page: 1,
-          limit: 10,
-        });
-
-      setMoviesMostPopular(response.data);
-    } catch (err) {
-      console.error("Error fetching movies most popular:", err);
-    } finally {
-      setLoading(false);
+  const loadMoreTopRated = useCallback(() => {
+    if (topRatedHasMore && !topRatedLoading) {
+      fetchMoviesTopRate(topRatedPage + 1, true);
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topRatedPage, topRatedHasMore, topRatedLoading]);
 
   useEffect(() => {
-    fetchMoviesTopRate();
-    fetchMoviesMostPopular();
+    fetchMoviesTopRate(1, false);
+    fetchMoviesMostPopular(1, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {
@@ -83,6 +151,9 @@ export function MoviePage() {
             type="popular"
             items={moviesMostPopular || []}
             classNameItem="basis-1/3 px-2"
+            onLoadMore={loadMorePopular}
+            hasMore={popularHasMore}
+            isLoading={popularLoading}
           />
         </div>
       </div>
@@ -97,6 +168,9 @@ export function MoviePage() {
             type="popular"
             items={moviesTopRate || []}
             classNameItem="basis-1/3 px-2"
+            onLoadMore={loadMoreTopRated}
+            hasMore={topRatedHasMore}
+            isLoading={topRatedLoading}
           />
         </div>
       </div>

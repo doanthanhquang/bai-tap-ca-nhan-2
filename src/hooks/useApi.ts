@@ -26,7 +26,7 @@ export function useApi<T>(
       return result;
     } catch (err) {
       const axiosError = err as AxiosError;
-      const errorMessage = axiosError.response?.data 
+      const errorMessage = axiosError.response?.data
         ? JSON.stringify(axiosError.response.data)
         : axiosError.message || 'An error occurred';
       setError(errorMessage);
@@ -34,13 +34,15 @@ export function useApi<T>(
     } finally {
       setLoading(false);
     }
-  }, [apiFunction]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (immediate) {
       execute();
     }
-  }, [immediate, execute]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     data,
@@ -58,7 +60,7 @@ export function useApi<T>(
  *   (userData) => exampleService.createUser(userData)
  * );
  */
-export function useMutation<T, P = any>(
+export function useMutation<T, P>(
   apiFunction: (params: P) => Promise<T>
 ) {
   const [data, setData] = useState<T | null>(null);
@@ -74,7 +76,7 @@ export function useMutation<T, P = any>(
       return result;
     } catch (err) {
       const axiosError = err as AxiosError;
-      const errorMessage = axiosError.response?.data 
+      const errorMessage = axiosError.response?.data
         ? JSON.stringify(axiosError.response.data)
         : axiosError.message || 'An error occurred';
       setError(errorMessage);
@@ -82,7 +84,8 @@ export function useMutation<T, P = any>(
     } finally {
       setLoading(false);
     }
-  }, [apiFunction]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     mutate,
