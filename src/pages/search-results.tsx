@@ -5,6 +5,7 @@ import type { Movie, Pagination as PaginationType } from "@/api/types";
 import MovieCard from "@/components/movie/movie-card";
 import CommonPagination from "@/components/common/pagination";
 import { Search } from "lucide-react";
+import { userApi } from "@/api/user";
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
@@ -13,6 +14,7 @@ export default function SearchResultsPage() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
   const [pagination, setPagination] = useState<PaginationType>({
     total_items: 0,
     current_page: 1,
@@ -45,6 +47,22 @@ export default function SearchResultsPage() {
 
     fetchSearchResults();
   }, [query, searchType]);
+
+  // Load favorites once to mark hearts in results
+  useEffect(() => {
+    const loadFavorites = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const response = await userApi.getFavorites();
+        setFavoriteIds(new Set(response.map((fav) => fav.id)));
+      } catch (err) {
+        console.error("Error loading favorites:", err);
+      }
+    };
+
+    loadFavorites();
+  }, []);
 
   const handlePageChange = async (newPage: number) => {
     if (newPage === pagination.current_page || loading) return;
@@ -127,7 +145,22 @@ export default function SearchResultsPage() {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+                isFavorite={favoriteIds.has(movie.id)}
+                onFavoriteChange={(movieId, isFav) => {
+                  setFavoriteIds((prev) => {
+                    const next = new Set(prev);
+                    if (isFav) {
+                      next.add(movieId);
+                    } else {
+                      next.delete(movieId);
+                    }
+                    return next;
+                  });
+                }}
+              />
             ))}
           </div>
 
