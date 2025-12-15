@@ -1,5 +1,5 @@
 import axiosInstance from '@/api/axios';
-import type { Movie, PaginatedResponse, MovieTopRatedResponse, MovieDetail } from '@/api/types';
+import type { Movie, PaginatedResponse, MovieTopRatedResponse, MovieDetail, Review } from '@/api/types';
 
 export const moviesApi = {
   // Get paginated list of movies
@@ -64,6 +64,25 @@ export const moviesApi = {
     const response = await axiosInstance.get<PaginatedResponse<Movie>>('/movies/search', {
       params
     });
+    return response.data;
+  },
+
+  // Get reviews for a movie (paginated)
+  getMovieReviews: async ({
+    movieId,
+    page = 1,
+    limit = 5,
+  }: {
+    movieId: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const response = await axiosInstance.get<PaginatedResponse<Review>>(
+      `/movies/${movieId}/reviews`,
+      {
+        params: { page, limit },
+      }
+    );
     return response.data;
   },
 };

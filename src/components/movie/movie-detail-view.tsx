@@ -209,7 +209,7 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
       )}
 
       {/* Reviews */}
-      <MovieReviews reviews={movie.reviews} />
+      <MovieReviews movieId={movie.id} />
     </div>
   );
 };
