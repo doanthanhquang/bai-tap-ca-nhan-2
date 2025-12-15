@@ -3,6 +3,7 @@ import { LogOut, Moon, Sun, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/theme-context";
 import { useNavigate } from "react-router-dom";
+import { userApi } from "@/api/user";
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
@@ -36,12 +37,18 @@ const Header = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsAuthenticated(false);
-    // Dispatch custom event to notify other components
-    window.dispatchEvent(new Event("authChange"));
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await userApi.logout();
+    } catch (error) {
+      console.error("Logout failed", error);
+    } finally {
+      localStorage.removeItem("token");
+      setIsAuthenticated(false);
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new Event("authChange"));
+      navigate("/");
+    }
   };
 
   return (

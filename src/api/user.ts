@@ -40,6 +40,12 @@ export interface LoginResponse {
   token: string;
 }
 
+// Logout response type
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
+}
+
 // User profile type (matches API response)
 export interface UserProfile {
   id: number;
@@ -107,6 +113,12 @@ export const userApi = {
   // Login user
   login: async (data: LoginRequest): Promise<LoginResponse> => {
     const response = await axiosInstance.post<LoginResponse>('/users/login', data);
+    return response.data;
+  },
+
+  // Logout user
+  logout: async (): Promise<LogoutResponse> => {
+    const response = await axiosInstance.post<LogoutResponse>('/users/logout');
     return response.data;
   },
 
