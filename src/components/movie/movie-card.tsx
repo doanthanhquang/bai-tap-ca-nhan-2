@@ -50,6 +50,8 @@ const MovieCard = ({
 
       if (newFavoriteState) {
         await userApi.addFavorite(movie.id);
+      } else {
+        await userApi.removeFavorite(movie.id);
       }
 
       setIsFavorite(newFavoriteState);

@@ -135,4 +135,12 @@ export const userApi = {
     );
     return response.data;
   },
+
+  // Remove movie from favorites
+  removeFavorite: async (movieId: string): Promise<{ success: boolean; message: string }> => {
+    const response = await axiosInstance.delete<{ success: boolean; message: string }>(
+      `/users/favorites/${movieId}`
+    );
+    return response.data;
+  },
 };

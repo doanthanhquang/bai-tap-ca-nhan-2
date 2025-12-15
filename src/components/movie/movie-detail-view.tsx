@@ -27,8 +27,8 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
       }
 
       try {
-        // Get first page of favorites to check if movie is in the list
-        const response = await userApi.getFavorites(1, 100);
+        // Get favorites to check if movie is in the list
+        const response = await userApi.getFavorites();
         const isInFavorites = response.some((fav) => fav.id === movie.id);
         setIsFavorite(isInFavorites);
       } catch (error) {
@@ -56,6 +56,8 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
 
       if (newFavoriteState) {
         await userApi.addFavorite(movie.id);
+      } else {
+        await userApi.removeFavorite(movie.id);
       }
 
       setIsFavorite(newFavoriteState);

@@ -112,7 +112,16 @@ export default function FavoritesPage() {
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
             {currentMovies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} isFavorite={true} />
+              <MovieCard
+                key={movie.id}
+                movie={movie}
+                isFavorite={true}
+                onFavoriteChange={(movieId, isFav) => {
+                  if (!isFav) {
+                    setMovies((prev) => prev.filter((m) => m.id !== movieId));
+                  }
+                }}
+              />
             ))}
           </div>
 
