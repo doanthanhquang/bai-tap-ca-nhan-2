@@ -1,4 +1,5 @@
 import axiosInstance from '@/api/axios';
+import type { Movie } from '@/api/types';
 
 // Registration request type
 export interface RegisterRequest {
@@ -57,6 +58,17 @@ export interface UpdateProfileRequest {
   dob: string; // ISO date string (YYYY-MM-DD)
 }
 
+// Favorite movies response type
+export interface FavoriteMoviesResponse {
+  data: Movie[];
+  pagination: {
+    total_items: number;
+    current_page: number;
+    total_pages: number;
+    page_size: number;
+  };
+}
+
 export const userApi = {
   // Register a new user
   register: async (data: RegisterRequest): Promise<RegisterResponse> => {
@@ -79,6 +91,14 @@ export const userApi = {
   // Update user profile (PATCH method)
   updateProfile: async (data: UpdateProfileRequest): Promise<UserProfile> => {
     const response = await axiosInstance.patch<UserProfile>('/users/profile', data);
+    return response.data;
+  },
+
+  // Get user favorite movies
+  getFavorites: async (page: number = 1, limit: number = 10): Promise<FavoriteMoviesResponse> => {
+    const response = await axiosInstance.get<FavoriteMoviesResponse>('/users/favorites', {
+      params: { page, limit }
+    });
     return response.data;
   },
 };

@@ -8,6 +8,7 @@ import {
   LoginPage,
   SignUpPage,
   ProfilePage,
+  FavoritesPage,
 } from "@/pages";
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/search" element={<SearchResultsPage />} />
                 <Route path="/persons/:id" element={<PersonDetailPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
               </Routes>
             </MainLayout>
           }
