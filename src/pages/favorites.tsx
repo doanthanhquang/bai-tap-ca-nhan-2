@@ -13,10 +13,9 @@ export default function FavoritesPage() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   const fetchFavorites = useCallback(
-    async (pageNum: number = 1) => {
+    async () => {
       // Check authentication first
       const token = localStorage.getItem("token");
       if (!token) {
@@ -27,13 +26,28 @@ export default function FavoritesPage() {
       try {
         setLoading(true);
 
-        const response = await userApi.getFavorites(pageNum, 10);
+        const response = await userApi.getFavorites();
 
-        setMovies(response.data);
-        setTotalPages(response.pagination.total_pages);
+        // Map API favorite format to existing Movie type
+        const mappedMovies: Movie[] = response.map((fav) => ({
+          id: fav.id,
+          title: fav.title,
+          year: fav.release_year,
+          image: fav.image_url,
+          rate: fav.imdb_rating
+            ? Number(fav.imdb_rating)
+            : fav.external_ratings?.imDb
+            ? Number(fav.external_ratings.imDb)
+            : 0,
+          short_description: fav.plot,
+          genres: fav.keywords ?? [],
+          box_office_revenue: fav.box_office?.cumulativeWorldwideGross,
+        }));
+
+        setMovies(mappedMovies);
       } catch (err) {
         const axiosError = err as AxiosError<{ message?: string }>;
-        
+
         if (axiosError.response?.status === 401) {
           // Unauthorized - redirect to login
           localStorage.removeItem("token");
@@ -48,8 +62,8 @@ export default function FavoritesPage() {
   );
 
   useEffect(() => {
-    fetchFavorites(page);
-  }, [page, fetchFavorites]);
+    fetchFavorites();
+  }, [fetchFavorites]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -69,6 +83,11 @@ export default function FavoritesPage() {
     );
   }
 
+  const pageSize = 10;
+  const totalPages = Math.max(1, Math.ceil(movies.length / pageSize) || 1);
+  const startIndex = (page - 1) * pageSize;
+  const currentMovies = movies.slice(startIndex, startIndex + pageSize);
+
   return (
     <div className="container mx-auto max-w-7xl py-8 px-4">
       {/* Header */}
@@ -81,7 +100,9 @@ export default function FavoritesPage() {
         </div>
         <p className="text-gray-600 dark:text-gray-400">
           {movies && movies.length > 0
-            ? `You have ${movies.length} favorite movie${movies.length > 1 ? "s" : ""}`
+            ? `You have ${movies.length} favorite movie${
+                movies.length > 1 ? "s" : ""
+              }`
             : "Your favorite movies will appear here"}
         </p>
       </div>
@@ -90,8 +111,8 @@ export default function FavoritesPage() {
       {movies && movies.length > 0 ? (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-8">
-            {movies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
+            {currentMovies.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} isFavorite={true} />
             ))}
           </div>
 

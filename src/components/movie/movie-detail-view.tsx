@@ -1,9 +1,11 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MovieDetail } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import MovieReviews from "@/components/movie/movie-reviews";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Heart } from "lucide-react";
+import { userApi } from "@/api/user";
 
 interface MovieDetailViewProps {
   movie: MovieDetail;
@@ -11,14 +13,85 @@ interface MovieDetailViewProps {
 
 const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
   const navigate = useNavigate();
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isToggling, setIsToggling] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
+
+  // Check if movie is already in favorites
+  useEffect(() => {
+    const checkFavorite = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setIsChecking(false);
+        return;
+      }
+
+      try {
+        // Get first page of favorites to check if movie is in the list
+        const response = await userApi.getFavorites(1, 100);
+        const isInFavorites = response.some((fav) => fav.id === movie.id);
+        setIsFavorite(isInFavorites);
+      } catch (error) {
+        console.error("Error checking favorite status:", error);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkFavorite();
+  }, [movie.id]);
+
+  const handleFavoriteToggle = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    if (isToggling) return;
+
+    try {
+      setIsToggling(true);
+      const newFavoriteState = !isFavorite;
+
+      if (newFavoriteState) {
+        await userApi.addFavorite(movie.id);
+      }
+
+      setIsFavorite(newFavoriteState);
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      // Optionally show error message to user
+    } finally {
+      setIsToggling(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
       {/* Back Button */}
-      <Button variant="ghost" onClick={() => navigate(-1)}>
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back
-      </Button>
+      <div className="flex items-center justify-between pr-6">
+        <Button variant="ghost" onClick={() => navigate(-1)}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+
+        {!isChecking && (
+          <Button
+            onClick={handleFavoriteToggle}
+            disabled={isToggling}
+            variant={isFavorite ? "default" : "outline"}
+            className="flex items-center gap-2 min-w-[140px]"
+          >
+            <Heart className={`h-5 w-5 ${isFavorite ? "fill-white" : ""}`} />
+            {isToggling
+              ? "Loading..."
+              : isFavorite
+              ? "Remove Favorite"
+              : "Favorite"}
+          </Button>
+        )}
+      </div>
 
       {/* Hero Section */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -89,8 +162,8 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
           </h2>
           <div className="flex gap-4">
             {movie.directors.map((director) => (
-              <div 
-                key={director.id} 
+              <div
+                key={director.id}
                 className="text-center cursor-pointer"
                 onClick={() => navigate(`/persons/${director.id}`)}
               >
@@ -111,8 +184,8 @@ const MovieDetailView = ({ movie }: MovieDetailViewProps) => {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {movie.actors.map((actor) => (
-              <div 
-                key={actor.id} 
+              <div
+                key={actor.id}
                 className="text-center cursor-pointer"
                 onClick={() => navigate(`/persons/${actor.id}`)}
               >

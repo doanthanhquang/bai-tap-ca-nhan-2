@@ -1,5 +1,4 @@
 import axiosInstance from '@/api/axios';
-import type { Movie } from '@/api/types';
 
 // Registration request type
 export interface RegisterRequest {
@@ -58,16 +57,45 @@ export interface UpdateProfileRequest {
   dob: string; // ISO date string (YYYY-MM-DD)
 }
 
-// Favorite movies response type
-export interface FavoriteMoviesResponse {
-  data: Movie[];
-  pagination: {
-    total_items: number;
-    current_page: number;
-    total_pages: number;
-    page_size: number;
+// Favorite movie item returned by API
+export interface FavoriteMovieApi {
+  id: string;
+  title: string;
+  original_title: string;
+  full_title: string;
+  type: string;
+  release_year: number;
+  release_date: string;
+  runtime_mins: number;
+  image_url: string;
+  plot: string;
+  plot_full: string;
+  awards: string;
+  companies: string;
+  countries: string[];
+  languages: string[];
+  keywords: string[];
+  box_office: {
+    budget: string;
+    grossUSA: string;
+    openingWeekendUSA: string;
+    cumulativeWorldwideGross: string;
   };
+  external_ratings: {
+    imDb: string | null;
+    metacritic: string | null;
+    theMovieDb: string | null;
+    filmAffinity: string | null;
+    rottenTomatoes: string | null;
+  };
+  created_at: string;
+  updated_at: string;
+  imdb_rating: string | null;
+  imdb_votes: string | null;
 }
+
+// Favorite movies response type (API returns a plain array, no pagination)
+export type FavoriteMoviesResponse = FavoriteMovieApi[];
 
 export const userApi = {
   // Register a new user
@@ -95,10 +123,16 @@ export const userApi = {
   },
 
   // Get user favorite movies
-  getFavorites: async (page: number = 1, limit: number = 10): Promise<FavoriteMoviesResponse> => {
-    const response = await axiosInstance.get<FavoriteMoviesResponse>('/users/favorites', {
-      params: { page, limit }
-    });
+  getFavorites: async (): Promise<FavoriteMoviesResponse> => {
+    const response = await axiosInstance.get<FavoriteMoviesResponse>('/users/favorites');
+    return response.data;
+  },
+
+  // Add movie to favorites
+  addFavorite: async (movieId: string): Promise<{ success: boolean; message: string }> => {
+    const response = await axiosInstance.post<{ success: boolean; message: string }>(
+      `/users/favorites/${movieId}`
+    );
     return response.data;
   },
 };
